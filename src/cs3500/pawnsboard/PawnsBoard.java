@@ -46,6 +46,11 @@ public class PawnsBoard implements PawnsGame {
     this.redPassed = false;
     this.bluePassed = false;
 
+    // Check if handSize is less than 1/3 of deck size.
+    if (handSize > this.playerRed.getDeckSize() / 3 || handSize > this.playerBlue.getDeckSize() / 3) {
+      throw new IllegalArgumentException("Cannot have a hand size greater than 1/3 deck size.");
+    }
+
     initializeBoard();
     dealStartingHands(handSize);
 

@@ -41,7 +41,9 @@ public class Card implements ICard {
     this.name = name;
     this.cost = cost;
     this.value = value;
-    this.influenceGrid = new int[5][5];
+    // old: this.influenceGrid = new int[5][5];
+    // Already checked for 5x5, should set grid to param given in constructor
+    this.influenceGrid = influenceGrid;
   }
 
   @Override

@@ -1,7 +1,9 @@
 package cs3500.pawnsboard;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a player in the game.
@@ -23,6 +25,18 @@ public class Player implements IPlayer {
     if (deck == null || deck.isEmpty()) {
       throw new IllegalArgumentException("Deck cannot be null or empty.");
     }
+    // Check For More Than 2 Duplicates of A Card
+    Map<Card, Integer> objectCountMap = new HashMap<>();
+    for (Card obj : deck) {
+      int count = objectCountMap.getOrDefault(obj, 0);
+      count++;
+      if (count > 2) {
+        throw new IllegalArgumentException("Deck contains more than two of a card.");
+      }
+      // Update the count in the map
+      objectCountMap.put(obj, count);
+    }
+
     this.color = color;
     this.deck = new ArrayList<>(deck);
     this.hand = new ArrayList<>();
