@@ -3,6 +3,7 @@ package cs3500.pawnsboard.model;
 /**
  * Represents a cell on the Pawns Board.
  * A cell can either be empty, contain a card, or have pawns of a single player.
+ * INVARIANT: A cell can never have more than 3 pawns. 
  */
 public class Cell implements ICell {
   private int pawnCount;

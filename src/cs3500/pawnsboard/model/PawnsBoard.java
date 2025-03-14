@@ -38,8 +38,6 @@ public class PawnsBoard implements PawnsGame {
    * @param handSize   The number of starting cards for each player.
    */
 
-  // INVARIANT: The game can only be started once (gameStarted == true
-  // after this method and can not be switched back until game is over).
   @Override
   public void startGame(Player playerRed, Player playerBlue, int handSize) {
     if (gameStarted) {
