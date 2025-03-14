@@ -1,4 +1,4 @@
-package cs3500.pawnsboard;
+package cs3500.pawnsboard.model;
 
 /**
  * Represents a cell on the Pawns Board.
@@ -18,8 +18,10 @@ public class Cell implements ICell {
     this.card = null;
   }
 
-  @Override
-  public boolean isEmpty() {
+  /**
+   * Checks if the cell is empty
+   */
+  protected boolean isEmpty() {
     return card == null && pawnCount == 0;
   }
 
@@ -54,7 +56,8 @@ public class Cell implements ICell {
    * @param player The player adding the pawn.
    * @throws IllegalStateException if the cell has a card or exceeds 3 pawns.
    */
-  public void addPawn(Player player) {
+
+  protected void addPawn(Player player) {
     if (hasCard()) {
       throw new IllegalStateException("Cannot add pawns to a cell containing a card.");
     }
@@ -74,28 +77,6 @@ public class Cell implements ICell {
     }
   }
 
-
-  public void applyInfluence(Player player) {
-    if (hasCard()) {
-      return;
-    }
-
-    if (isEmpty()) {
-      owner = player;
-      pawnCount = 1;
-      return;
-    }
-
-    if (owner.equals(player)) {
-      if (pawnCount < 3) {
-        pawnCount++;
-      }
-    } else {
-      owner = player;
-    }
-  }
-
-
   /**
    * Places a card in the cell, removing any pawns and setting ownership.
    *
@@ -103,7 +84,7 @@ public class Cell implements ICell {
    * @param player The player placing the card.
    * @throws IllegalStateException if the cell is not empty.
    */
-  public void placeCard(Card card, Player player) {
+  protected void placeCard(Card card, Player player) {
     if (hasCard()) {
       throw new IllegalStateException("Can only place a card in an empty cell.");
     }
@@ -112,18 +93,11 @@ public class Cell implements ICell {
     this.pawnCount = 0;
   }
 
+
   /**
-   * Clears the cell, removing any pawns and cards.
+   * Removes all pawns from Cell.
    */
-  @Override
-  public void clear() {
-    this.card = null;
-    this.owner = null;
-    this.pawnCount = 0;
-  }
-
-
-  public void removeAllPawns() {
+  protected void removeAllPawns() {
     this.pawnCount = 0;
   }
 
@@ -134,7 +108,17 @@ public class Cell implements ICell {
     } else if (hasPawns()) {
       return String.valueOf(pawnCount);
     } else {
-      return "_"; // Empty cell
+      return "_";
     }
   }
+
+  /**
+   * Converts the paewns in cell to the other player
+   *
+   * @param newOwner is the new owner of the pawns in cell.
+   */
+  protected void convertPawns(Player newOwner) {
+    this.owner = newOwner;
+  }
+
 }

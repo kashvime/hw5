@@ -1,4 +1,4 @@
-package cs3500.pawnsboard;
+package cs3500.pawnsboard.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,8 +52,12 @@ public class Player implements IPlayer {
     return new ArrayList<>(hand);
   }
 
-  @Override
-  public boolean drawCard() {
+  /**
+   * Draws a card from the player's deck, adding it to their hand.
+   *
+   * @return true if a card was successfully drawn, false if the deck is empty.
+   */
+  protected boolean drawCard() {
     if (deck.isEmpty()) {
       return false;
     }
@@ -63,20 +67,20 @@ public class Player implements IPlayer {
   }
 
 
-  @Override
-  public void removeCardFromHand(Card card) {
-    if (!hand.contains(card)) {
-      throw new IllegalArgumentException("Card is not in hand.");
-    }
+  /**
+   * Removes the specified card from the player's hand.
+   *
+   * @param card the card to remove.
+   * @throws IllegalArgumentException if the card is not in the player's hand.
+   */
+  protected void removeCardFromHand(Card card) {
     hand.remove(card);
   }
 
   /**
    * Checks if the player's deck is empty.
-   *
-   * @return true if the deck is empty, false otherwise.
    */
-  public boolean isDeckEmpty() {
+  protected boolean isDeckEmpty() {
     return deck.isEmpty();
   }
 
@@ -89,12 +93,9 @@ public class Player implements IPlayer {
     return deck.size();
   }
 
+
   @Override
   public String toString() {
-    return "Player{"
-            + "color=" + color
-            + ", hand=" + hand
-            + ", deckSize=" + deck.size()
-            + '}';
+    return "Player" + color;
   }
 }

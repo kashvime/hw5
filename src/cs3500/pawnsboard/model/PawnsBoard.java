@@ -1,4 +1,4 @@
-package cs3500.pawnsboard;
+package cs3500.pawnsboard.model;
 
 /**
  * Implements the game logic for the Pawns Board game.
@@ -15,10 +15,12 @@ public class PawnsBoard implements PawnsGame {
 
   /**
    * Constructs the game with a board of specified dimensions.
-   * The game is not started until `startGame` is called.
+   * INVARIANT: rows > 0 && columns > 1 && columns % 2 == 1.
+   * Board Dimensions are always ensured to be following these tules.
    *
    * @param rows    The number of rows for the board.
    * @param columns The number of columns for the board (must be odd).
+   * @throws IllegalArgumentException If board dimensionas are invalid at consturction.
    */
   public PawnsBoard(int rows, int columns) {
     if (rows <= 0 || columns <= 1 || columns % 2 == 0) {
@@ -35,6 +37,10 @@ public class PawnsBoard implements PawnsGame {
    * @param playerBlue The blue player.
    * @param handSize   The number of starting cards for each player.
    */
+
+  // INVARIANT: The game can only be started once (gameStarted == true
+  // after this method and can not be switched back until game is over).
+  @Override
   public void startGame(Player playerRed, Player playerBlue, int handSize) {
     if (gameStarted) {
       throw new IllegalStateException("Game has already started.");
@@ -55,11 +61,16 @@ public class PawnsBoard implements PawnsGame {
     dealStartingHands(handSize);
 
     this.gameStarted = true;
+
+    if (!currentPlayer.isDeckEmpty()) {
+      currentPlayer.drawCard();
+    }
   }
 
   /**
    * Initializes the board with empty cells and places the starting pawns.
    */
+
   private void initializeBoard() {
     for (int r = 0; r < board.length; r++) {
       for (int c = 0; c < board[0].length; c++) {
@@ -82,22 +93,32 @@ public class PawnsBoard implements PawnsGame {
     }
   }
 
+  @Override
   public boolean isGameOver() {
     return redPassed && bluePassed;
   }
 
+  @Override
   public IPlayer getCurrentPlayer() {
     return currentPlayer;
   }
 
-  public void nextTurn() {
+  /**
+   * Moves to the next player's turn.
+   */
+  private void nextTurn() {
     currentPlayer = (currentPlayer == playerRed) ? playerBlue : playerRed;
+    if (!currentPlayer.isDeckEmpty()) {
+      currentPlayer.drawCard();
+    }
   }
 
+
+  @Override
   public void placeCardInPosition(Card card, int row, int col) {
     validateGameStarted();
-    if (!isValidPosition(row, 0)) {
-      throw new IllegalArgumentException("no such row.");
+    if (!isValidPosition(row, col)) {
+      throw new IllegalArgumentException("Invalid row or column.");
     }
     Cell cell = board[row][col];
 
@@ -116,25 +137,31 @@ public class PawnsBoard implements PawnsGame {
 
     currentPlayer.removeCardFromHand(card);
 
-    resetPassStatus();
+    redPassed = false;
+    bluePassed = false;
     nextTurn();
   }
 
-
+  @Override
   public void passTurn() {
     validateGameStarted();
+
     if (currentPlayer == playerRed) {
       redPassed = true;
     } else {
       bluePassed = true;
     }
     nextTurn();
+
   }
 
+
+  @Override
   public Cell[][] getBoardState() {
     return board;
   }
 
+  @Override
   public int[] getRowScore(int row) {
     validateGameStarted();
     if (!isValidPosition(row, 0)) {
@@ -158,7 +185,22 @@ public class PawnsBoard implements PawnsGame {
   }
 
 
-  public int[] getTotalScores() {
+  private int[][] mirrorInfluenceGrid(int[][] grid) {
+    int[][] mirroredGrid = new int[5][5];
+    for (int i = 0; i < 5; i++) {
+      for (int j = 0; j < 5; j++) {
+        mirroredGrid[i][4 - j] = grid[i][j]; // Flip horizontally
+      }
+    }
+    return mirroredGrid;
+  }
+
+  /**
+   * Returns the total scores for both players.
+   *
+   * @return index 0 is red's score and index 1 is blue's score.
+   */
+  protected int[] getTotalScores() {
     int redTotal = 0, blueTotal = 0;
 
     for (int r = 0; r < board.length; r++) {
@@ -177,6 +219,7 @@ public class PawnsBoard implements PawnsGame {
   }
 
 
+  @Override
   public IPlayer getWinner() {
     int[] scores = getTotalScores();
     int redScore = scores[0];
@@ -196,27 +239,31 @@ public class PawnsBoard implements PawnsGame {
    */
   private void applyCardInfluence(Card card, int row, int col) {
     int[][] influenceGrid = card.getInfluenceGrid();
+    if (currentPlayer == playerBlue) {
+      influenceGrid = mirrorInfluenceGrid(influenceGrid);
+    }
 
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
         if (influenceGrid[i][j] == 1) {
           int rowOffset = i - 2;
           int colOffset = j - 2;
-
-          if (currentPlayer == playerBlue) {
-            colOffset = -(colOffset);
-          }
           int affectedRow = row + rowOffset;
           int affectedCol = col + colOffset;
 
           if (isValidPosition(affectedRow, affectedCol)) {
-            board[affectedRow][affectedCol].applyInfluence(currentPlayer);
+            Cell affectedCell = board[affectedRow][affectedCol];
+
+            if (affectedCell.isEmpty()) {
+              affectedCell.addPawn(currentPlayer);
+            } else if (!affectedCell.getOwner().equals(currentPlayer)) {
+              affectedCell.convertPawns(currentPlayer);
+            }
           }
         }
       }
     }
   }
-
 
   /**
    * Ensures the game has started before performing operations.
@@ -229,23 +276,21 @@ public class PawnsBoard implements PawnsGame {
 
 
   /**
-   * Resets pass status when a move is made.
-   */
-  private void resetPassStatus() {
-    if (currentPlayer == playerRed) {
-      redPassed = false;
-    } else {
-      bluePassed = false;
-    }
-  }
-
-  /**
    * Checks if the board position is within valid bounds.
    */
   private boolean isValidPosition(int row, int col) {
     return row >= 0 && row < board.length && col >= 0 && col < board[0].length;
   }
 
+
+  /**
+   * Checks if placing a given card at the given position is a valid move.
+   *
+   * @param card card to be placed.
+   * @param row  row index
+   * @param col  column index
+   * @return true if the move is valid, false otherwise.
+   */
   private boolean isValidMove(Card card, int row, int col) {
     Cell cell = board[row][col];
 
