@@ -1,11 +1,6 @@
-package cs3500.pawnsboard;
+package cs3500.pawnsboard.model;
 
 public interface ICell {
-
-  /**
-   * Checks if the cell is empty
-   */
-  boolean isEmpty();
 
   /**
    * Checks if the cell contains a card
@@ -32,9 +27,4 @@ public interface ICell {
    */
   Player getOwner();
 
-  /**
-   * Clears the cell (removes all pawns and cards)
-   */
-  void clear();
 }
-

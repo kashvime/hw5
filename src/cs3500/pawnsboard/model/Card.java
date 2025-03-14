@@ -1,4 +1,4 @@
-package cs3500.pawnsboard;
+package cs3500.pawnsboard.model;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -15,9 +15,9 @@ public class Card implements ICard {
   /**
    * Creates a card with the given name, cost, value, and influence grid.
    *
-   * @param name  name of the card.
-   * @param cost  cost in pawns.
-   * @param value  value score that determines the overall score of the game.
+   * @param name          name of the card.
+   * @param cost          cost in pawns.
+   * @param value         value score that determines the overall score of the game.
    * @param influenceGrid A 5x5 grid demonstrating the card’s influence on the board.
    * @throws IllegalArgumentException if card name is null or empty.
    * @throws IllegalArgumentException if cost is not 1,2, or 3 pawns.
@@ -41,13 +41,10 @@ public class Card implements ICard {
     this.name = name;
     this.cost = cost;
     this.value = value;
-    // old: this.influenceGrid = new int[5][5];
-    // Already checked for 5x5, should set grid to param given in constructor
     this.influenceGrid = influenceGrid;
   }
 
-  @Override
-  public String getName() {
+  protected String getName() {
     return name;
   }
 
