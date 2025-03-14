@@ -59,7 +59,6 @@ public class InternalTests {
   }
 
 
-
   @Test
   public void testPlayerConstructor() {
     Player player2 = new Player(PlayerColor.RED, Arrays.asList(card1, card2));
@@ -67,6 +66,7 @@ public class InternalTests {
     assertEquals(new ArrayList<>(), player2.getHand());
     assertEquals(2, player2.getDeckSize());
   }
+
   @Test(expected = IllegalArgumentException.class)
   public void testPlayerConstructorNull() {
     Player player2 = new Player(PlayerColor.RED, null);
