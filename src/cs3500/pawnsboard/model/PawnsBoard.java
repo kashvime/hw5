@@ -153,11 +153,17 @@ public class PawnsBoard implements PawnsGame {
 
   }
 
-
   @Override
   public Cell[][] getBoardState() {
-    return board;
+    Cell[][] boardCopy = new Cell[board.length][board[0].length];
+
+    for (int i = 0; i < board.length; i++) {
+      System.arraycopy(board[i], 0, boardCopy[i], 0, board[i].length);
+    }
+
+    return boardCopy;
   }
+
 
   @Override
   public int[] getRowScore(int row) {

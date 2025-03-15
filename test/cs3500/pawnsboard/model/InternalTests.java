@@ -59,6 +59,7 @@ public class InternalTests {
   }
 
 
+
   @Test
   public void testPlayerConstructor() {
     Player player2 = new Player(PlayerColor.RED, Arrays.asList(card1, card2));

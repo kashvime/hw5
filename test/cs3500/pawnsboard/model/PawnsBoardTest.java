@@ -146,6 +146,34 @@ public class PawnsBoardTest {
   }
 
   @Test
+  public void testInfluenceConvertsOpponentPawns() {
+    game.startGame(playerRed, playerBlue, 2);
+
+    Cell[][] board = game.getBoardState();
+
+    board[1][2].addPawn(playerRed);
+    board[1][2].addPawn(playerRed);
+
+    int[][] influenceGrid = {
+            {0, 0, 0, 0, 0},
+            {0, 1, 1, 1, 0},
+            {0, 1, 1, 1, 0},
+            {0, 1, 1, 1, 0},
+            {0, 0, 0, 0, 0}
+    };
+
+    Card influenceCard = new Card("Influencer", 2, 2, influenceGrid);
+
+    game.placeCardInPosition(influenceCard, 1, 2);
+
+    // Adjacent blue pawns should now be red due to infleunce
+    assertEquals(playerRed, board[0][2].getOwner());
+    assertEquals(playerRed, board[1][1].getOwner());
+    assertEquals(playerRed, board[1][3].getOwner());
+    assertEquals(playerRed, board[2][2].getOwner());
+  }
+
+  @Test
   public void testPlaceCardInvalidPosition() {
     game.startGame(playerRed, playerBlue, 2);
     try {
@@ -242,6 +270,7 @@ public class PawnsBoardTest {
     assertTrue(game.getBoardState()[1][4].hasPawns() || game.getBoardState()[2][3].hasPawns());
   }
 
+
   @Test
   public void testScoreCalculationAcrossRows() {
     game.startGame(playerRed, playerBlue, 2);
@@ -249,14 +278,14 @@ public class PawnsBoardTest {
     game.placeCardInPosition(playerBlue.getHand().get(0), 2, 4);
 
     int[] totalScores = game.getTotalScores();
-    assertTrue("Total score should be calculated correctly",
+    assertTrue(
             totalScores[0] > 0 || totalScores[1] > 0);
   }
 
   @Test
   public void testInvalidMoveOnOpponentPawns() {
     game.startGame(playerRed, playerBlue, 2);
-    game.passTurn(); // Switch to Blue
+    game.passTurn();
 
     try {
       game.placeCardInPosition(playerBlue.getHand().get(0), 0, 0);
@@ -272,6 +301,36 @@ public class PawnsBoardTest {
     game.passTurn();
     game.passTurn();
     assertTrue(game.isGameOver());
+  }
+
+  @Test
+  public void testInitialPawnPlacement() {
+    game.startGame(playerRed, playerBlue, 2);
+
+    Cell[][] board = game.getBoardState();
+
+    assertEquals(3, board.length);
+    assertEquals(5, board[0].length);
+
+    for (int row = 0; row < 3; row++) {
+      assertTrue(board[row][0].hasPawns());
+      assertEquals(playerRed, board[row][0].getOwner());
+      assertEquals(1, board[row][0].getPawnCount());
+    }
+
+    for (int row = 0; row < 3; row++) {
+      assertTrue(board[row][4].hasPawns());
+      assertEquals(playerBlue, board[row][4].getOwner());
+      assertEquals(1, board[row][4].getPawnCount());
+    }
+
+    for (int row = 0; row < 3; row++) {
+      for (int col = 1; col < 4; col++) {
+        assertFalse(board[row][col].hasPawns());
+        assertFalse(board[row][col].hasCard());
+        assertNull(board[row][col].getOwner());
+      }
+    }
   }
 
   @Test
